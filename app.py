@@ -3,61 +3,134 @@ import faiss
 import numpy as np
 import pickle
 import torch
+
 from sentence_transformers import SentenceTransformer
-from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
-st.set_page_config(page_title="Policy Assistant", page_icon="🏢")
+# --------------------------------------------------
+# Page Config
+# --------------------------------------------------
+st.set_page_config(
+    page_title="Policy Assistant",
+    page_icon="🏢",
+    layout="wide"
+)
 
+# --------------------------------------------------
+# Load Models & Assets Once
+# --------------------------------------------------
 @st.cache_resource
 def load_assets():
-    # Load Embedding Model
-    embed_model = SentenceTransformer('all-MiniLM-L6-v2')
-    
-    # Load FAISS Index
-    index = faiss.read_index('employee_policy_faiss.index')
-    
-    # Load Chunk Mapping
-    with open('chunk_mapping.pkl', 'rb') as f:
+    # Embedding Model
+    embed_model = SentenceTransformer("all-MiniLM-L6-v2")
+
+    # FAISS Index
+    index = faiss.read_index("employee_policy_faiss.index")
+
+    # Chunk Mapping
+    with open("chunk_mapping.pkl", "rb") as f:
         mapping = pickle.load(f)
-        
-    # Configure 4-bit Quantization to prevent OOM
-    quant_config = BitsAndBytesConfig(
-        load_in_4bit=True,
-        bnb_4bit_compute_dtype=torch.float16,
-        bnb_4bit_quant_type="nf4"
+
+    # Lightweight LLM
+    model_id = "google/flan-t5-small"
+
+    tokenizer = AutoTokenizer.from_pretrained(model_id)
+
+    model = AutoModelForSeq2SeqLM.from_pretrained(
+        model_id,
+        torch_dtype=torch.float32
     )
 
-    # Load LLM
-    model_id = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
-    tokenizer = AutoTokenizer.from_pretrained(model_id)
-    llm = AutoModelForCausalLM.from_pretrained(
-        model_id, 
-        quantization_config=quant_config,
-        device_map="auto"
-    )
-    return embed_model, index, mapping, tokenizer, llm
+    return embed_model, index, mapping, tokenizer, model
+
 
 embed_model, index, mapping, tokenizer, llm = load_assets()
 
+# --------------------------------------------------
+# UI
+# --------------------------------------------------
 st.title("🏢 Employee Policy Assistant")
-st.write("Ask questions about company leaves, WFH, or insurance.")
 
-query = st.text_input("Enter your question:")
+st.write(
+    """
+    Ask questions about:
+    - Leave Policy
+    - Work From Home (WFH)
+    - Insurance
+    - Employee Benefits
+    - Company Rules
+    """
+)
 
+query = st.text_input(
+    "Enter your question:",
+    placeholder="Example: How many casual leaves do employees get per year?"
+)
+
+# --------------------------------------------------
+# Answer Generation
+# --------------------------------------------------
 if query:
-    with st.spinner("Thinking..."):
-        q_emb = embed_model.encode([query]).astype('float32')
+
+    with st.spinner("Searching policy documents..."):
+
+        # Generate query embedding
+        q_emb = embed_model.encode([query]).astype("float32")
+
+        # Normalize for cosine similarity
         faiss.normalize_L2(q_emb)
-        
+
+        # Retrieve top chunks
         D, I = index.search(q_emb, k=3)
-        context = "\n\n".join([mapping[i] for i in I[0]])
-        
-        prompt = f"<|system|>\nYou are a helpful assistant. Use the context to answer.</s>\n<|user|>\nContext: {context}\nQuestion: {query}</s>\n<|assistant|>"
-        inputs = tokenizer(prompt, return_tensors="pt").to(llm.device)
-        outputs = llm.generate(**inputs, max_new_tokens=150, temperature=0.3, do_sample=True)
-        answer = tokenizer.decode(outputs[0], skip_special_tokens=True).split("<|assistant|>")[-1].strip()
-        
-        st.subheader("Response")
-        st.success(answer)
-        with st.expander("Source Context"):
-            st.info(context)
+
+        context_chunks = []
+
+        for idx in I[0]:
+            if idx >= 0:
+                context_chunks.append(mapping[idx])
+
+        context = "\n\n".join(context_chunks)
+
+    with st.spinner("Generating answer..."):
+
+        prompt = f"""
+You are an HR Policy Assistant.
+
+Answer ONLY using the provided context.
+
+If the answer is not present in the context, say:
+"I could not find that information in the policy documents."
+
+Context:
+{context}
+
+Question:
+{query}
+
+Answer:
+"""
+
+        inputs = tokenizer(
+            prompt,
+            return_tensors="pt",
+            truncation=True,
+            max_length=1024
+        )
+
+        outputs = llm.generate(
+            **inputs,
+            max_new_tokens=150,
+            temperature=0.3,
+            do_sample=False
+        )
+
+        answer = tokenizer.decode(
+            outputs[0],
+            skip_special_tokens=True
+        )
+
+    st.subheader("Response")
+    st.success(answer)
+
+    with st.expander("Retrieved Context"):
+        st.write(context)
