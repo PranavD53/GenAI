@@ -5,3 +5,4 @@ torch
 sentence-transformers
 transformers
 huggingface_hub
+torchvision
