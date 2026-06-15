@@ -1,8 +1,7 @@
 streamlit
 faiss-cpu
 numpy
+torch
 sentence-transformers
 transformers
-torch
-accelerate
-bitsandbytes
+huggingface_hub
