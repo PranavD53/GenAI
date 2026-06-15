@@ -12,13 +12,13 @@ import time
 # --------------------------------------------------
 st.set_page_config(
     page_title="Policy Assistant | Enterprise HR Platform",
-    page_icon="static/favicon.png",
+    page_icon="📋",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
 # --------------------------------------------------
-# Custom CSS Styling
+# Custom CSS Styling - Light & Dark Theme
 # --------------------------------------------------
 def load_custom_css():
     st.markdown("""
@@ -26,7 +26,7 @@ def load_custom_css():
         /* Import Fonts */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-        /* CSS Variables */
+        /* ==================== LIGHT THEME VARIABLES ==================== */
         :root {
             --primary-50: #eff6ff;
             --primary-100: #dbeafe;
@@ -49,25 +49,101 @@ def load_custom_css():
             --success-500: #22c55e;
             --success-600: #16a34a;
 
-            --gray-50: #f9fafb;
-            --gray-100: #f3f4f6;
-            --gray-200: #e5e7eb;
-            --gray-300: #d1d5db;
-            --gray-400: #9ca3af;
-            --gray-500: #6b7280;
-            --gray-600: #4b5563;
-            --gray-700: #374151;
-            --gray-800: #1f2937;
-            --gray-900: #111827;
+            /* Light Theme Colors */
+            --bg-primary: #ffffff;
+            --bg-secondary: #f9fafb;
+            --bg-tertiary: #f3f4f6;
+            --bg-gradient: linear-gradient(135deg, var(--primary-50) 0%, #ffffff 50%, var(--accent-50) 100%);
+            --bg-card: #ffffff;
+            --bg-sidebar: #ffffff;
+
+            --text-primary: #111827;
+            --text-secondary: #4b5563;
+            --text-tertiary: #6b7280;
+            --text-muted: #9ca3af;
+
+            --border-light: #e5e7eb;
+            --border-medium: #d1d5db;
+            --border-focus: var(--primary-400);
+
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --shadow-glow: 0 10px 40px -10px rgba(37, 99, 235, 0.3);
         }
 
-        /* Global Styles */
+        /* ==================== DARK THEME VARIABLES ==================== */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --primary-50: #1e3a5f;
+                --primary-100: #1e40af;
+                --primary-200: #1d4ed8;
+
+                --bg-primary: #0f172a;
+                --bg-secondary: #1e293b;
+                --bg-tertiary: #334155;
+                --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+                --bg-card: #1e293b;
+                --bg-sidebar: #1e293b;
+
+                --text-primary: #f1f5f9;
+                --text-secondary: #cbd5e1;
+                --text-tertiary: #94a3b8;
+                --text-muted: #64748b;
+
+                --border-light: #334155;
+                --border-medium: #475569;
+                --border-focus: var(--primary-400);
+
+                --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+                --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4);
+                --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5);
+                --shadow-glow: 0 10px 40px -10px rgba(59, 130, 246, 0.3);
+            }
+        }
+
+        /* ==================== STREAMLIT DARK MODE ==================== */
+        .stApp[data-testid="stApp"][data-theme="dark"],
+        .stApp[data-testid="stAppViewContainer"][data-theme="dark"] {
+            --primary-50: #1e3a5f;
+            --primary-100: #1e40af;
+            --primary-200: #1d4ed8;
+
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            --bg-card: #1e293b;
+            --bg-sidebar: #1e293b;
+
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-tertiary: #94a3b8;
+            --text-muted: #64748b;
+
+            --border-light: #334155;
+            --border-medium: #475569;
+        }
+
+        /* Force dark theme variables */
+        [data-testid="stAppViewContainer"][data-theme="dark"],
+        [data-testid="stSidebar"][data-theme="dark"] {
+            background-color: var(--bg-primary) !important;
+        }
+
+        /* ==================== GLOBAL STYLES ==================== */
         html, body, [class*="css"] {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
         }
 
-        body {
-            background: linear-gradient(135deg, var(--primary-50) 0%, #ffffff 50%, var(--accent-50) 100%) !important;
+        .stApp {
+            background: var(--bg-gradient) !important;
+        }
+
+        /* Dark mode background override */
+        [data-testid="stAppViewContainer"][data-theme="dark"] .stApp,
+        [data-testid="stAppViewContainer"][data-theme="dark"] {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%) !important;
         }
 
         /* Hide Streamlit Branding */
@@ -75,20 +151,20 @@ def load_custom_css():
         header {visibility: hidden;}
         footer {visibility: hidden;}
 
-        /* Main Container */
+        /* ==================== MAIN CONTAINER ==================== */
         .main .block-container {
             padding-top: 2rem !important;
             padding-bottom: 2rem !important;
             max-width: 1200px !important;
         }
 
-        /* Header Styling */
+        /* ==================== HEADER STYLING ==================== */
         .app-header {
             background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
             border-radius: 16px;
             padding: 2rem;
             margin-bottom: 2rem;
-            box-shadow: 0 10px 40px -10px rgba(37, 99, 235, 0.4);
+            box-shadow: var(--shadow-glow);
             position: relative;
             overflow: hidden;
         }
@@ -142,7 +218,7 @@ def load_custom_css():
             50% { opacity: 0.5; }
         }
 
-        /* Quick Action Cards */
+        /* ==================== QUICK ACTION CARDS ==================== */
         .quick-actions {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -151,18 +227,18 @@ def load_custom_css():
         }
 
         .quick-action-card {
-            background: white;
-            border: 1px solid var(--gray-200);
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
             border-radius: 12px;
             padding: 1.25rem;
             cursor: pointer;
             transition: all 0.2s ease;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            box-shadow: var(--shadow-sm);
         }
 
         .quick-action-card:hover {
-            border-color: var(--primary-300);
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+            border-color: var(--primary-400);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
             transform: translateY(-2px);
         }
 
@@ -180,39 +256,39 @@ def load_custom_css():
 
         .quick-action-title {
             font-weight: 600;
-            color: var(--gray-800);
+            color: var(--text-primary);
             margin-bottom: 0.25rem;
         }
 
         .quick-action-desc {
             font-size: 0.8125rem;
-            color: var(--gray-500);
+            color: var(--text-tertiary);
         }
 
-        /* Input Area */
+        /* ==================== INPUT AREA ==================== */
         .input-container {
-            background: white;
-            border: 2px solid var(--gray-200);
+            background: var(--bg-card);
+            border: 2px solid var(--border-light);
             border-radius: 16px;
             padding: 1.5rem;
             margin-bottom: 1.5rem;
             transition: all 0.2s ease;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            box-shadow: var(--shadow-md);
         }
 
         .input-container:focus-within {
             border-color: var(--primary-400);
-            box-shadow: 0 0 0 3px var(--primary-100), 0 4px 12px rgba(59, 130, 246, 0.1);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15), var(--shadow-lg);
         }
 
         .input-label {
             font-weight: 600;
-            color: var(--gray-700);
+            color: var(--text-primary);
             margin-bottom: 0.75rem;
             display: block;
         }
 
-        /* Text Input Styling */
+        /* ==================== TEXT INPUT STYLING ==================== */
         div[data-testid="stTextInput"] {
             margin-bottom: 0 !important;
         }
@@ -223,6 +299,11 @@ def load_custom_css():
             font-size: 1rem !important;
             padding: 0.75rem 0 !important;
             box-shadow: none !important;
+            color: var(--text-primary) !important;
+        }
+
+        div[data-testid="stTextInput"] > div > div > input::placeholder {
+            color: var(--text-muted) !important;
         }
 
         div[data-testid="stTextInput"] > div > div > input:focus {
@@ -234,8 +315,8 @@ def load_custom_css():
             display: none !important;
         }
 
-        /* Submit Button */
-        .submit-button {
+        /* ==================== BUTTONS ==================== */
+        .stButton > button {
             background: linear-gradient(135deg, var(--primary-500), var(--primary-600)) !important;
             color: white !important;
             border: none !important;
@@ -249,18 +330,25 @@ def load_custom_css():
             width: 100% !important;
         }
 
-        .submit-button:hover {
+        .stButton > button:hover {
             transform: translateY(-1px);
             box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4) !important;
         }
 
-        /* Response Container */
+        /* Secondary buttons */
+        .stButton > button[kind="secondary"] {
+            background: var(--bg-tertiary) !important;
+            color: var(--text-primary) !important;
+            box-shadow: none !important;
+        }
+
+        /* ==================== RESPONSE CONTAINER ==================== */
         .response-container {
-            background: white;
+            background: var(--bg-card);
             border-radius: 16px;
             padding: 1.5rem;
-            border: 1px solid var(--gray-200);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-md);
             animation: slideUp 0.3s ease;
         }
 
@@ -281,7 +369,7 @@ def load_custom_css():
             gap: 0.75rem;
             margin-bottom: 1rem;
             padding-bottom: 1rem;
-            border-bottom: 1px solid var(--gray-100);
+            border-bottom: 1px solid var(--border-light);
         }
 
         .response-icon {
@@ -298,57 +386,66 @@ def load_custom_css():
 
         .response-title {
             font-weight: 600;
-            color: var(--gray-800);
+            color: var(--text-primary);
             font-size: 1.125rem;
         }
 
         .response-text {
-            color: var(--gray-700);
+            color: var(--text-secondary);
             font-size: 1rem;
             line-height: 1.7;
             white-space: pre-wrap;
         }
 
-        /* Success Box Override */
+        /* ==================== SUCCESS BOX ==================== */
         .stSuccess {
-            background: linear-gradient(135deg, var(--success-50), #ffffff) !important;
-            border: none !important;
+            background: linear-gradient(135deg, var(--success-50), var(--bg-card)) !important;
+            border: 1px solid var(--success-500) !important;
             border-radius: 12px !important;
             padding: 1.5rem !important;
             box-shadow: none !important;
         }
 
         .stSuccess > div {
-            color: var(--gray-800) !important;
+            color: var(--text-primary) !important;
             font-size: 1rem !important;
             line-height: 1.7 !important;
         }
 
-        /* Expander Styling */
+        /* ==================== EXPANDER STYLING ==================== */
         .streamlit-expanderHeader {
-            background: var(--gray-50) !important;
-            border: 1px solid var(--gray-200) !important;
+            background: var(--bg-secondary) !important;
+            border: 1px solid var(--border-light) !important;
             border-radius: 12px !important;
             padding: 1rem 1.25rem !important;
             font-weight: 600 !important;
-            color: var(--gray-700) !important;
+            color: var(--text-primary) !important;
             margin-top: 1rem !important;
         }
 
         .streamlit-expanderContent {
-            border: 1px solid var(--gray-200) !important;
+            border: 1px solid var(--border-light) !important;
             border-top: none !important;
             border-radius: 0 0 12px 12px !important;
             padding: 1.25rem !important;
-            background: var(--gray-50) !important;
+            background: var(--bg-secondary) !important;
+            color: var(--text-secondary) !important;
         }
 
-        /* Loading Animation */
+        /* ==================== LOADING ANIMATION ==================== */
         .loading-container {
             display: flex;
             align-items: center;
             gap: 1rem;
             padding: 1rem;
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--border-light);
+        }
+
+        .loading-text {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
         }
 
         .loading-dots {
@@ -373,10 +470,10 @@ def load_custom_css():
             50% { transform: translateY(-6px); }
         }
 
-        /* Sidebar Styling */
+        /* ==================== SIDEBAR STYLING ==================== */
         section[data-testid="stSidebar"] {
-            background: white !important;
-            border-right: 1px solid var(--gray-200) !important;
+            background: var(--bg-sidebar) !important;
+            border-right: 1px solid var(--border-light) !important;
         }
 
         section[data-testid="stSidebar"] > div {
@@ -386,7 +483,7 @@ def load_custom_css():
         .sidebar-title {
             font-size: 0.75rem;
             font-weight: 700;
-            color: var(--gray-500);
+            color: var(--text-tertiary);
             text-transform: uppercase;
             letter-spacing: 0.05em;
             margin-bottom: 1rem;
@@ -400,9 +497,9 @@ def load_custom_css():
             padding: 0.875rem 1rem;
             border-radius: 10px;
             margin-bottom: 0.5rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
             border: 1px solid transparent;
+            transition: all 0.2s ease;
+            color: var(--text-primary);
         }
 
         .sidebar-category:hover {
@@ -429,22 +526,22 @@ def load_custom_css():
 
         .sidebar-cat-name {
             font-weight: 600;
-            color: var(--gray-800);
+            color: var(--text-primary);
             font-size: 0.875rem;
         }
 
         .sidebar-cat-count {
             font-size: 0.75rem;
-            color: var(--gray-500);
+            color: var(--text-tertiary);
         }
 
-        /* Chat History */
+        /* ==================== CHAT MESSAGES ==================== */
         .chat-message {
-            background: white;
+            background: var(--bg-card);
             border-radius: 12px;
             padding: 1rem;
             margin-bottom: 0.75rem;
-            border: 1px solid var(--gray-200);
+            border: 1px solid var(--border-light);
             display: flex;
             gap: 1rem;
         }
@@ -476,17 +573,61 @@ def load_custom_css():
         .chat-role {
             font-weight: 600;
             font-size: 0.8125rem;
-            color: var(--gray-700);
+            color: var(--text-primary);
             margin-bottom: 0.25rem;
         }
 
         .chat-text {
-            color: var(--gray-600);
+            color: var(--text-secondary);
             font-size: 0.875rem;
             line-height: 1.5;
         }
 
-        /* Responsive */
+        /* ==================== CONTEXT BOX ==================== */
+        .context-box {
+            background: var(--bg-secondary);
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            white-space: pre-wrap;
+            border: 1px solid var(--border-light);
+        }
+
+        /* ==================== SECTION DIVIDER ==================== */
+        hr {
+            border-color: var(--border-light) !important;
+        }
+
+        /* ==================== MARKDOWN TEXT ==================== */
+        .stMarkdown {
+            color: var(--text-primary) !important;
+        }
+
+        .stMarkdown p, .stMarkdown span, .stMarkdown div {
+            color: var(--text-primary) !important;
+        }
+
+        /* ==================== SCROLLBAR ==================== */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-medium);
+            border-radius: 999px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        /* ==================== RESPONSIVE ==================== */
         @media (max-width: 768px) {
             .main .block-container {
                 padding: 1rem !important;
@@ -505,46 +646,6 @@ def load_custom_css():
                 grid-template-columns: 1fr;
             }
         }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--gray-300);
-            border-radius: 999px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--gray-400);
-        }
-
-        /* Tooltip Button */
-        .tooltip-btn {
-            background: transparent;
-            border: 1px solid var(--gray-300);
-            border-radius: 8px;
-            padding: 0.5rem 0.75rem;
-            font-size: 0.8125rem;
-            color: var(--gray-600);
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.375rem;
-        }
-
-        .tooltip-btn:hover {
-            background: var(--primary-50);
-            border-color: var(--primary-300);
-            color: var(--primary-700);
-        }
     </style>
     """, unsafe_allow_html=True)
 
@@ -555,24 +656,17 @@ load_custom_css()
 # --------------------------------------------------
 @st.cache_resource
 def load_assets():
-    # Embedding Model
     embed_model = SentenceTransformer("all-MiniLM-L6-v2")
-    # FAISS Index
     try:
         index = faiss.read_index("employee_policy_faiss.index")
         with open("chunk_mapping.pkl", "rb") as f:
             mapping = pickle.load(f)
     except FileNotFoundError:
-        # Demo mode if index not found
         index = None
         mapping = {}
-    # Lightweight LLM
     model_id = "google/flan-t5-small"
     tokenizer = AutoTokenizer.from_pretrained(model_id)
-    model = AutoModelForSeq2SeqLM.from_pretrained(
-        model_id,
-        torch_dtype=torch.float32
-    )
+    model = AutoModelForSeq2SeqLM.from_pretrained(model_id, torch_dtype=torch.float32)
     return embed_model, index, mapping, tokenizer, model
 
 embed_model, index, mapping, tokenizer, llm = load_assets()
@@ -640,8 +734,6 @@ QUICK_PROMPTS = [
 # --------------------------------------------------
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
-if "show_context" not in st.session_state:
-    st.session_state.show_context = {}
 
 # --------------------------------------------------
 # Sidebar
@@ -711,7 +803,6 @@ st.markdown('</div>', unsafe_allow_html=True)
 st.markdown('<div class="input-container">', unsafe_allow_html=True)
 st.markdown('<label class="input-label">What would you like to know?</label>', unsafe_allow_html=True)
 
-# Get pre-filled query from quick prompts
 default_query = st.session_state.get("pre_filled_query", "")
 if "pre_filled_query" in st.session_state:
     del st.session_state["pre_filled_query"]
@@ -733,10 +824,8 @@ st.markdown('</div>', unsafe_allow_html=True)
 # Answer Generation
 # --------------------------------------------------
 if query and submitted:
-    # Add user message to history
     st.session_state.chat_history.append({"role": "user", "content": query})
 
-    # Display user message
     st.markdown(f"""
     <div class="chat-message">
         <div class="chat-avatar user">👤</div>
@@ -747,34 +836,29 @@ if query and submitted:
     </div>
     """, unsafe_allow_html=True)
 
-    # Loading animation
     loading_placeholder = st.empty()
     loading_placeholder.markdown("""
     <div class="loading-container">
-        <div class="loading-dots">
-            <div class="loading-dot"></div>
-            <div class="loading-dot"></div>
-            <div class="loading-dot"></div>
+        <div class="loading-text">
+            <div class="loading-dots">
+                <div class="loading-dot"></div>
+                <div class="loading-dot"></div>
+                <div class="loading-dot"></div>
+            </div>
         </div>
-        <span>Searching policy documents...</span>
+        <span class="loading-text">Searching policy documents...</span>
     </div>
     """, unsafe_allow_html=True)
 
-    time.sleep(0.5)  # Brief delay for UX
+    time.sleep(0.5)
 
-    # Check if index is available (real mode) or use demo
     if index is not None:
-        # Generate query embedding
         q_emb = embed_model.encode([query]).astype("float32")
         faiss.normalize_L2(q_emb)
         D, I = index.search(q_emb, k=3)
-        context_chunks = []
-        for idx in I[0]:
-            if idx >= 0:
-                context_chunks.append(mapping[idx])
+        context_chunks = [mapping[idx] for idx in I[0] if idx >= 0]
         context = "\n\n".join(context_chunks)
 
-        # Generate answer
         prompt = f"""
 You are an HR Policy Assistant.
 Answer ONLY using the provided context.
@@ -790,14 +874,12 @@ Answer:
         outputs = llm.generate(**inputs, max_new_tokens=150, temperature=0.3, do_sample=False)
         answer = tokenizer.decode(outputs[0], skip_special_tokens=True)
     else:
-        # Demo mode
         demo = get_demo_response(query)
         answer = demo["answer"]
         context = demo["context"]
 
     loading_placeholder.empty()
 
-    # Display response
     st.markdown(f"""
     <div class="response-container">
         <div class="response-header">
@@ -810,23 +892,17 @@ Answer:
     </div>
     """, unsafe_allow_html=True)
 
-    # Add to history
     st.session_state.chat_history.append({"role": "assistant", "content": answer})
 
-    # Context expander
     with st.expander("📄 View Source Documents"):
-        st.markdown(f"""
-        <div style="background: #f9fafb; padding: 1rem; border-radius: 8px; font-size: 0.875rem; color: #4b5563; white-space: pre-wrap;">
-{context}
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown(f'<div class="context-box">{context}</div>', unsafe_allow_html=True)
 
 # --------------------------------------------------
-# Chat History (if exists)
+# Chat History
 # --------------------------------------------------
 if len(st.session_state.chat_history) > 0 and not (query and submitted):
     st.markdown("### Recent Conversation")
-    for msg in st.session_state.chat_history[-6:]:  # Show last 6 messages
+    for msg in st.session_state.chat_history[-6:]:
         if msg["role"] == "user":
             st.markdown(f"""
             <div class="chat-message">
